@@ -12,6 +12,7 @@ A full-stack job application and interview tracker built for active job seekers.
 - **Status Timeline** — full history of every stage change, stored as an append-only event log
 - **Source Tracking** — log where each application came from (LinkedIn, Handshake, Indeed, etc.) and see response rates per source on the Stats dashboard
 - **Reminder Emails** — set a follow-up reminder (default: 7 days after applying) and get an email when it's time
+- **Search & Filter** — full-text search across company name, role, and notes; filter by stage, source, priority, tags, and date range with pagination
 - **Tags** — label applications with color-coded tags and filter the board by them
 - **Stats Dashboard** — response rate, stage funnel, weekly activity, and source breakdown
 - **CSV Export** — export your applications with active filters applied
@@ -47,6 +48,7 @@ A full-stack job application and interview tracker built for active job seekers.
 - **XSS-resistant auth** — access token lives in memory (Zustand), refresh token is an httpOnly cookie so JavaScript can't steal it.
 - **Persistent background jobs** — APScheduler uses PostgreSQL as its job store, so reminder jobs survive server restarts without needing Redis or Celery.
 - **Soft deletes** — applications are never hard-deleted; `deleted_at` timestamp enables the archived view and full history recovery.
+- **Indexed filtering** — composite indexes on `(user_id, stage)`, `(user_id, source)`, and `(user_id, applied_date)` keep filter queries fast as data grows. Pagination via `limit/offset` prevents unbounded result sets.
 
 ---
 
@@ -118,11 +120,12 @@ Currently in active development. Building in phases:
 - [ ] Phase 3 — Applications CRUD + Kanban board
 - [ ] Phase 4 — Drag & drop + status timeline
 - [ ] Phase 5 — Tags
-- [ ] Phase 6 — Reminders + email notifications
-- [ ] Phase 7 — CSV export + stats dashboard
-- [ ] Phase 8 — Archived view + dark mode
-- [ ] Phase 9 — Browser bookmarklet
-- [ ] Phase 10 — Tests, CI/CD, deployment
+- [ ] Phase 6 — Search & Filter (SQL WHERE clauses, composite indexes, pagination)
+- [ ] Phase 7 — Reminders + email notifications
+- [ ] Phase 8 — CSV export + stats dashboard
+- [ ] Phase 9 — Archived view + dark mode
+- [ ] Phase 10 — Browser bookmarklet
+- [ ] Phase 11 — Tests, CI/CD, deployment
 
 ---
 
