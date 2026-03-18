@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.core.dependencies import get_db
 from app.core.security import hash_password, verify_password, create_access_token
 from app.models.user import User
-from app.schemas.auth import UserCreate, UserLogin, UserResponse, Token
+from app.schemas.auth import UserCreate, UserResponse, Token
 
 router = APIRouter()
 
@@ -29,16 +30,16 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=Token)
-async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
-    # Look up user by email
-    result = await db.execute(select(User).where(User.email == user_data.email))
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    # OAuth2PasswordRequestForm uses 'username' field — we treat it as email
+    result = await db.execute(select(User).where(User.email == form_data.username))
     existing_user = result.scalar_one_or_none()
 
     if existing_user is None:
         # Same error for wrong email AND wrong password — prevents enumeration attacks
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    if not verify_password(user_data.password, existing_user.hashed_password):
+    if not verify_password(form_data.password, existing_user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     # Create JWT with email as the subject claim
