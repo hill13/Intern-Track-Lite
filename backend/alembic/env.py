@@ -11,6 +11,7 @@ from app.core.database import Base
 # IMPORTANT: import all models here so Base.metadata registers them
 # If you skip this, autogenerate sees an empty schema and creates a no-op migration
 import app.models.user  # noqa: F401
+import app.models.application
 
 # Alembic config object — gives access to alembic.ini values
 config = context.config
