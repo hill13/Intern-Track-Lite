@@ -81,3 +81,63 @@ async def single_application(
         raise HTTPException(status_code=404, detail="Application not found")
 
     return application
+
+
+# PATCH /applications/{id} — partially update an application (only fields sent by the user)
+@router.patch("/{id}", response_model=ApplicationResponse)
+async def update_application(
+    id: int,
+    data: ApplicationUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Fetch the application, 404 if not found or belongs to another user
+    result_query = select(Application).where(
+        Application.user_id == current_user.id,
+        Application.id == id,
+    )
+    result = await db.execute(result_query)
+    application = result.scalar_one_or_none()
+
+    if application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    # model_dump(exclude_unset=True) gives only the fields the user actually sent
+    # Example: user sends {"stage": "interview"}
+    #   → updates = {"stage": "interview"}   (not {"stage": "interview", "company_name": None, ...})
+    updates = data.model_dump(exclude_unset=True)
+
+    # setattr dynamically sets each field on the ORM object
+    # Example: setattr(application, "stage", "interview")
+    #          is the same as: application.stage = "interview"
+    for field, value in updates.items():
+        setattr(application, field, value)
+
+    # Commit once after all fields are set, then refresh to get the latest DB state
+    await db.commit()
+    await db.refresh(application)
+    return application
+
+
+# DELETE /applications/{id} — delete an application, only if it belongs to the current user
+@router.delete("/{id}")
+async def delete_application(
+    id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Fetch the application, 404 if not found or belongs to another user
+    result_query = select(Application).where(
+        Application.user_id == current_user.id,
+        Application.id == id,
+    )
+    result = await db.execute(result_query)
+    application = result.scalar_one_or_none()
+
+    if application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    await db.delete(application)
+    await db.commit()
+
+    return {"message": "Application deleted"}
