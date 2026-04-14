@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ProtectedRoute from './components/layout/ProtectedRoute'
+import Board from './pages/Board'
 
 export default function App() {
   return (
@@ -21,7 +22,7 @@ export default function App() {
           path="/board"
           element={
             <ProtectedRoute>
-              <div className="p-8 text-xl font-bold">Board coming soon</div>
+              <Board />
             </ProtectedRoute>
           }
         />
