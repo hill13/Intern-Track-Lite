@@ -1,10 +1,10 @@
 // Board.tsx — Kanban board page
-// Renders a horizontal row of columns, one per application stage.
-// Static for now — no API calls yet. We'll wire it to the backend after the layout looks right.
+// Fetches all applications via React Query, then splits them by stage.
+// Each KanbanColumn receives only the applications that belong to its stage.
 
 import KanbanColumn from '../components/board/KanbanColumn'
+import { useApplications } from '../hooks/useApplications'
 
-// All possible application stages — order here = order on the board
 const STAGES = [
   'wishlist',
   'applied',
@@ -16,12 +16,21 @@ const STAGES = [
 ]
 
 export default function Board() {
+  const { applications, isLoading, isError } = useApplications()
+
+  if (isLoading) return <div className="p-6">Loading...</div>
+  if (isError) return <div className="p-6 text-red-500">Failed to load applications.</div>
+
   return (
-    // flex = row layout, gap-4 = space between columns, overflow-x-auto = horizontal scroll on small screens
     <div className="flex gap-4 p-6 overflow-x-auto min-h-screen bg-gray-100">
       {STAGES.map((stage) => (
-        // key tells React which column is which when re-rendering
-        <KanbanColumn key={stage} stage={stage} />
+        <KanbanColumn
+          key={stage}
+          stage={stage}
+          // filter all applications down to just this column's stage
+          // ?? [] = fallback to empty array if applications is undefined
+          applications={applications?.filter((app) => app.stage === stage) ?? []}
+        />
       ))}
     </div>
   )
