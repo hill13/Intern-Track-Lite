@@ -1,7 +1,8 @@
-// ApplicationCard.tsx — A single application card on the Kanban board
-// Receives a full Application object and displays company, role, and source.
-// Clicking a card will later open a detail drawer (Phase 4 next steps).
+// ApplicationCard.tsx — A single draggable application card on the Kanban board
+// useDraggable makes the card pick-up-able — @dnd-kit tracks its position while dragging
+// and fires onDragEnd in DndContext when it's dropped.
 
+import { useDraggable } from '@dnd-kit/core'
 import type { Application } from '../../types'
 
 interface Props {
@@ -9,15 +10,26 @@ interface Props {
 }
 
 export default function ApplicationCard({ application }: Props) {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: application.id,  // unique id — DndContext uses this in onDragEnd as active.id
+  })
+
+  // transform = x/y pixel offset while dragging — moves the card visually with the cursor
+  // when not dragging, transform is null so style is undefined (no inline style applied)
+  const style = transform
+    ? { transform: `translate(${transform.x}px, ${transform.y}px)` }
+    : undefined
+
   return (
-    <div className="bg-white border rounded p-3 shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-      {/* Company name — most prominent */}
+    <div
+      ref={setNodeRef}   // registers this DOM element as the draggable target
+      {...listeners}     // mouse/touch handlers that start the drag
+      {...attributes}    // aria-* accessibility attributes
+      style={style}      // moves the card visually while dragging
+      className="bg-white border rounded p-3 shadow-sm cursor-grab hover:shadow-md transition-shadow"
+    >
       <p className="font-semibold text-sm">{application.company_name}</p>
-
-      {/* Role title — secondary info */}
       <p className="text-sm text-gray-500">{application.role_title}</p>
-
-      {/* Source — where the job was found (linkedin, handshake, etc.) */}
       <p className="text-xs text-blue-500 mt-1">{application.source}</p>
     </div>
   )
