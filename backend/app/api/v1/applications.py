@@ -120,7 +120,7 @@ async def update_application(
 
 
 # DELETE /applications/{id} — delete an application, only if it belongs to the current user
-@router.delete("/{id}")
+@router.delete("/{id}", status_code=204)
 async def delete_application(
     id: int,
     db: AsyncSession = Depends(get_db),
@@ -139,5 +139,3 @@ async def delete_application(
 
     await db.delete(application)
     await db.commit()
-
-    return {"message": "Application deleted"}
