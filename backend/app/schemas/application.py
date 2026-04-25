@@ -22,6 +22,7 @@ class ApplicationUpdate(BaseModel):
     applied_date: Optional[date] = None
     notes: Optional[str] = None
     job_url: Optional[str] = None
+    tag_ids: Optional[list[int]] = None  # if provided, replaces all tags on the application
 
 
 class ApplicationResponse(BaseModel):
@@ -35,6 +36,7 @@ class ApplicationResponse(BaseModel):
     applied_date: date
     notes: Optional[str] = None
     job_url: Optional[str] = None
+    tag_ids: list[int] = []  # always returned, empty list means no tags
 
     # Required to serialize SQLAlchemy ORM objects — without this Pydantic
     # expects a dict, but ORM objects are class instances with attributes
