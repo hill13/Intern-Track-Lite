@@ -7,6 +7,7 @@ import { DndContext } from '@dnd-kit/core'
 import { useQueryClient } from '@tanstack/react-query'
 import KanbanColumn from '../components/board/KanbanColumn'
 import { useApplications } from '../hooks/useApplications'
+import { useTags } from '../hooks/useTags'
 import { updateApplication } from '../api/applications'
 import type { Application } from '../types'
 
@@ -22,6 +23,7 @@ const STAGES = [
 
 export default function Board() {
   const { applications, isLoading, isError } = useApplications()
+  const { tags } = useTags()
 
   // useQueryClient gives us direct access to the React Query cache
   const queryClient = useQueryClient()
@@ -73,6 +75,7 @@ export default function Board() {
             key={stage}
             stage={stage}
             applications={applications?.filter((app) => app.stage === stage) ?? []}
+            tags={tags ?? []}
           />
         ))}
       </DndContext>
