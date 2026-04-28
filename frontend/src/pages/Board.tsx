@@ -3,6 +3,7 @@
 // handleDragEnd does an optimistic update — moves the card in the cache immediately,
 // calls the API in the background, and rolls back if the API call fails.
 
+import { useState } from 'react'
 import { DndContext } from '@dnd-kit/core'
 import { useQueryClient } from '@tanstack/react-query'
 import KanbanColumn from '../components/board/KanbanColumn'
@@ -24,6 +25,7 @@ const STAGES = [
 export default function Board() {
   const { applications, isLoading, isError } = useApplications()
   const { tags } = useTags()
+  const [selectedTagId, setSelectedTagId] = useState<number | null>(null)
 
   // useQueryClient gives us direct access to the React Query cache
   const queryClient = useQueryClient()
@@ -68,17 +70,38 @@ export default function Board() {
   }
 
   return (
-    <div className="flex gap-4 p-6 overflow-x-auto min-h-screen bg-gray-100">
-      <DndContext onDragEnd={handleDragEnd}>
-        {STAGES.map((stage) => (
-          <KanbanColumn
-            key={stage}
-            stage={stage}
-            applications={applications?.filter((app) => app.stage === stage) ?? []}
-            tags={tags ?? []}
-          />
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      {/* Tag filter bar — click a tag to filter, click again to clear */}
+      <div className="flex gap-2 p-4 flex-wrap">
+        {tags?.map(tag => (
+          <button
+            key={tag.id}
+            onClick={() => setSelectedTagId(selectedTagId === tag.id ? null : tag.id)}
+            style={{ backgroundColor: tag.color }}
+            className={`text-xs text-white px-3 py-1 rounded-full transition-opacity ${
+              selectedTagId !== null && selectedTagId !== tag.id ? 'opacity-40' : 'opacity-100'
+            }`}
+          >
+            {tag.name}
+          </button>
         ))}
-      </DndContext>
+      </div>
+
+      <div className="flex gap-4 px-6 pb-6 overflow-x-auto">
+        <DndContext onDragEnd={handleDragEnd}>
+          {STAGES.map((stage) => (
+            <KanbanColumn
+              key={stage}
+              stage={stage}
+              applications={applications?.filter((app) =>
+                app.stage === stage &&
+                (selectedTagId === null || app.tag_ids.includes(selectedTagId))
+              ) ?? []}
+              tags={tags ?? []}
+            />
+          ))}
+        </DndContext>
+      </div>
     </div>
   )
 }
