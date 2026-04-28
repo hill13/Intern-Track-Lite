@@ -3,13 +3,14 @@
 // and fires onDragEnd in DndContext when it's dropped.
 
 import { useDraggable } from '@dnd-kit/core'
-import type { Application } from '../../types'
+import type { Application, Tag } from '../../types'
 
 interface Props {
   application: Application
+  tags: Tag[]
 }
 
-export default function ApplicationCard({ application }: Props) {
+export default function ApplicationCard({ application, tags }: Props) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: application.id,  // unique id — DndContext uses this in onDragEnd as active.id
   })
@@ -31,6 +32,20 @@ export default function ApplicationCard({ application }: Props) {
       <p className="font-semibold text-sm">{application.company_name}</p>
       <p className="text-sm text-gray-500">{application.role_title}</p>
       <p className="text-xs text-blue-500 mt-1">{application.source}</p>
+      <div className="flex flex-wrap gap-1 mt-2">
+        {tags
+          .filter(tag => application.tag_ids.includes(tag.id))
+          .map(tag => (
+            <span
+              key={tag.id}
+              style={{ backgroundColor: tag.color }}
+              className="text-xs text-white px-2 py-0.5 rounded-full"
+            >
+              {tag.name}
+            </span>
+          ))
+        }
+      </div>
     </div>
   )
 }

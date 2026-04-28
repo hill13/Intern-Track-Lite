@@ -1,3 +1,12 @@
+// Mirrors TagResponse schema from the backend
+export interface Tag {
+  id: number
+  user_id: number
+  name: string
+  color: string
+  created_at: string
+}
+
 // Mirrors ApplicationResponse schema from the backend
 export interface Application {
   id: number
@@ -10,6 +19,7 @@ export interface Application {
   job_url: string | null
   applied_date: string
   created_at: string
+  tag_ids: number[]    // IDs of tags attached to this application
 }
 
 // Used when creating a new application — no id/user_id/created_at
@@ -32,6 +42,7 @@ export interface ApplicationUpdate {
   notes?: string
   job_url?: string
   applied_date?: string
+  tag_ids?: number[]
 }
 
 // Auth types

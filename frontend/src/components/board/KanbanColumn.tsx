@@ -3,15 +3,16 @@
 // When a card is dropped here, DndContext fires onDragEnd with over.id = stage name.
 
 import { useDroppable } from '@dnd-kit/core'
-import type { Application } from '../../types'
+import type { Application, Tag } from '../../types'
 import ApplicationCard from './ApplicationCard'
 
 interface Props {
   stage: string
   applications: Application[]
+  tags: Tag[]
 }
 
-export default function KanbanColumn({ stage, applications }: Props) {
+export default function KanbanColumn({ stage, applications, tags }: Props) {
   const { setNodeRef } = useDroppable({
     id: stage,  // onDragEnd will see over.id === stage when a card is dropped here
   })
@@ -30,7 +31,7 @@ export default function KanbanColumn({ stage, applications }: Props) {
           <div className="text-sm text-gray-400">No applications yet</div>
         ) : (
           applications.map((app) => (
-            <ApplicationCard key={app.id} application={app} />
+            <ApplicationCard key={app.id} application={app} tags={tags} />
           ))
         )}
       </div>

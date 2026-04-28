@@ -2,13 +2,22 @@ from datetime import date
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from app.core.dependencies import get_db, get_current_user
 from app.models.application import Application
+from app.models.application_tag import ApplicationTag
 from app.models.user import User
 from app.schemas.application import ApplicationCreate, ApplicationUpdate, ApplicationResponse
 
 router = APIRouter()
+
+
+async def _attach_tag_ids(application: Application, db: AsyncSession) -> Application:
+    result = await db.execute(
+        select(ApplicationTag.tag_id).where(ApplicationTag.application_id == application.id)
+    )
+    application.tag_ids = result.scalars().all()
+    return application
 
 
 # POST /applications — create a new job application for the current user
@@ -36,7 +45,7 @@ async def create_application(
     await db.commit()
     await db.refresh(new_application)  # loads DB-generated fields: id, created_at
 
-    return new_application
+    return await _attach_tag_ids(new_application, db)
 
 
 # GET /applications — list all applications for the current user, with optional stage/source filters
@@ -57,6 +66,8 @@ async def list_applications(
 
     result = await db.execute(application_query)
     applications = result.scalars().all()
+    for app in applications:
+        await _attach_tag_ids(app, db)
     return applications
 
 
@@ -80,7 +91,7 @@ async def single_application(
     if application is None:
         raise HTTPException(status_code=404, detail="Application not found")
 
-    return application
+    return await _attach_tag_ids(application, db)
 
 
 # PATCH /applications/{id} — partially update an application (only fields sent by the user)
@@ -107,20 +118,31 @@ async def update_application(
     #   → updates = {"stage": "interview"}   (not {"stage": "interview", "company_name": None, ...})
     updates = data.model_dump(exclude_unset=True)
 
+    # Pull tag_ids out before the setattr loop — it's not a column on Application
+    tag_ids = updates.pop("tag_ids", None)
+
     # setattr dynamically sets each field on the ORM object
     # Example: setattr(application, "stage", "interview")
     #          is the same as: application.stage = "interview"
     for field, value in updates.items():
         setattr(application, field, value)
 
+    # Replace strategy — delete all existing tags for this app, insert the new list
+    if tag_ids is not None:
+        await db.execute(
+            delete(ApplicationTag).where(ApplicationTag.application_id == id)
+        )
+        for tag_id in tag_ids:
+            db.add(ApplicationTag(application_id=id, tag_id=tag_id))
+
     # Commit once after all fields are set, then refresh to get the latest DB state
     await db.commit()
     await db.refresh(application)
-    return application
+    return await _attach_tag_ids(application, db)
 
 
 # DELETE /applications/{id} — delete an application, only if it belongs to the current user
-@router.delete("/{id}")
+@router.delete("/{id}", status_code=204)
 async def delete_application(
     id: int,
     db: AsyncSession = Depends(get_db),
@@ -139,5 +161,3 @@ async def delete_application(
 
     await db.delete(application)
     await db.commit()
-
-    return {"message": "Application deleted"}
