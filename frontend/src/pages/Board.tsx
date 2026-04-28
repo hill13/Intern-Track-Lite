@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { DndContext } from '@dnd-kit/core'
 import { useQueryClient } from '@tanstack/react-query'
 import KanbanColumn from '../components/board/KanbanColumn'
+import AddApplicationModal from '../components/board/AddApplicationModal'
 import { useApplications } from '../hooks/useApplications'
 import { useTags } from '../hooks/useTags'
 import { updateApplication } from '../api/applications'
@@ -26,6 +27,7 @@ export default function Board() {
   const { applications, isLoading, isError } = useApplications()
   const { tags } = useTags()
   const [selectedTagId, setSelectedTagId] = useState<number | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // useQueryClient gives us direct access to the React Query cache
   const queryClient = useQueryClient()
@@ -71,6 +73,16 @@ export default function Board() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
+      {/* Top bar — tag filters + add button */}
+      <div className="flex items-center justify-between px-4 pt-4">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          + Add Application
+        </button>
+      </div>
+
       {/* Tag filter bar — click a tag to filter, click again to clear */}
       <div className="flex gap-2 p-4 flex-wrap">
         {tags?.map(tag => (
@@ -86,6 +98,12 @@ export default function Board() {
           </button>
         ))}
       </div>
+
+      <AddApplicationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        tags={tags ?? []}
+      />
 
       <div className="flex gap-4 px-6 pb-6 overflow-x-auto">
         <DndContext onDragEnd={handleDragEnd}>
