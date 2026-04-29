@@ -8,6 +8,7 @@ import { DndContext } from '@dnd-kit/core'
 import { useQueryClient } from '@tanstack/react-query'
 import KanbanColumn from '../components/board/KanbanColumn'
 import AddApplicationModal from '../components/board/AddApplicationModal'
+import EditApplicationModal from '../components/board/EditApplicationModal'
 import { useApplications } from '../hooks/useApplications'
 import { useTags } from '../hooks/useTags'
 import { updateApplication } from '../api/applications'
@@ -28,6 +29,8 @@ export default function Board() {
   const { tags } = useTags()
   const [selectedTagId, setSelectedTagId] = useState<number | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  // editingApp holds the application the user clicked — null means no modal open
+  const [editingApp, setEditingApp] = useState<Application | null>(null)
 
   // useQueryClient gives us direct access to the React Query cache
   const queryClient = useQueryClient()
@@ -73,7 +76,7 @@ export default function Board() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Top bar — tag filters + add button */}
+      {/* Top bar — add button */}
       <div className="flex items-center justify-between px-4 pt-4">
         <button
           onClick={() => setIsModalOpen(true)}
@@ -104,6 +107,11 @@ export default function Board() {
         onClose={() => setIsModalOpen(false)}
         tags={tags ?? []}
       />
+      <EditApplicationModal
+        app={editingApp}
+        onClose={() => setEditingApp(null)}
+        tags={tags ?? []}
+      />
 
       <div className="flex gap-4 px-6 pb-6 overflow-x-auto">
         <DndContext onDragEnd={handleDragEnd}>
@@ -116,6 +124,8 @@ export default function Board() {
                 (selectedTagId === null || app.tag_ids.includes(selectedTagId))
               ) ?? []}
               tags={tags ?? []}
+              // setEditingApp — when a card is clicked, store it so the edit modal can read it
+              onEdit={setEditingApp}
             />
           ))}
         </DndContext>
