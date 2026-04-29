@@ -1,34 +1,38 @@
-// ApplicationCard.tsx — A single draggable application card on the Kanban board
-// useDraggable makes the card pick-up-able — @dnd-kit tracks its position while dragging
-// and fires onDragEnd in DndContext when it's dropped.
-
 import { useDraggable } from '@dnd-kit/core'
 import type { Application, Tag } from '../../types'
 
 interface Props {
   application: Application
   tags: Tag[]
+  onEdit: (app: Application) => void
 }
 
-export default function ApplicationCard({ application, tags }: Props) {
+export default function ApplicationCard({ application, tags, onEdit }: Props) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: application.id,  // unique id — DndContext uses this in onDragEnd as active.id
+    id: application.id,
   })
 
-  // transform = x/y pixel offset while dragging — moves the card visually with the cursor
-  // when not dragging, transform is null so style is undefined (no inline style applied)
   const style = transform
     ? { transform: `translate(${transform.x}px, ${transform.y}px)` }
     : undefined
 
   return (
     <div
-      ref={setNodeRef}   // registers this DOM element as the draggable target
-      {...listeners}     // mouse/touch handlers that start the drag
-      {...attributes}    // aria-* accessibility attributes
-      style={style}      // moves the card visually while dragging
-      className="bg-white border rounded p-3 shadow-sm cursor-grab hover:shadow-md transition-shadow"
+      ref={setNodeRef}
+      {...attributes}
+      style={style}
+      onClick={() => onEdit(application)}
+      className="bg-white border rounded p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
     >
+      {/* Drag handle — listeners here so drag only starts from the grip, not the whole card.
+          stopPropagation prevents the grip click from also firing onEdit. */}
+      <div
+        {...listeners}
+        onClick={e => e.stopPropagation()}
+        className="text-gray-300 hover:text-gray-500 cursor-grab mb-1 w-fit"
+      >
+        ⠿
+      </div>
       <p className="font-semibold text-sm">{application.company_name}</p>
       <p className="text-sm text-gray-500">{application.role_title}</p>
       <p className="text-xs text-blue-500 mt-1">{application.source}</p>

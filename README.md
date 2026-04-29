@@ -115,12 +115,13 @@ BACKEND_CORS_ORIGINS=["http://localhost:5173"]
 
 Currently in active development. Building in phases:
 
-- [ ] Phase 1 — Foundation (Docker, FastAPI skeleton, React skeleton)
-- [ ] Phase 2 — Auth (register, login, JWT, protected routes)
-- [ ] Phase 3 — Applications CRUD + Kanban board
-- [ ] Phase 4 — Drag & drop + status timeline
-- [ ] Phase 5 — Tags
-- [ ] Phase 6 — Search & Filter (SQL WHERE clauses, composite indexes, pagination)
+- [x] Phase 1 — Foundation (Docker, FastAPI skeleton, React skeleton)
+- [x] Phase 2 — Auth (register, login, JWT, protected routes)
+- [x] Phase 3 — Applications CRUD + Kanban board
+- [x] Phase 4 — Drag & drop + optimistic updates
+- [x] Phase 5 — Tags (model, API, tag chips on cards)
+- [x] Phase 6 — Tag filter bar on Kanban board
+- [ ] Phase 6.5 — Application form UI (add/edit/delete from board) ← in progress
 - [ ] Phase 7 — Reminders + email notifications
 - [ ] Phase 8 — CSV export + stats dashboard
 - [ ] Phase 9 — Archived view + dark mode
