@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,6 +29,8 @@ async def create_application(
 ):
     # Default applied_date to today if user didn't provide one
     applied_date = data.applied_date if data.applied_date is not None else date.today()
+    # Default reminder to 7 days after applied_date if user didn't set one
+    reminder_date = data.reminder_date if data.reminder_date is not None else applied_date + timedelta(days=7)
 
     new_application = Application(
         user_id=current_user.id,
@@ -39,6 +41,7 @@ async def create_application(
         notes=data.notes,
         job_url=data.job_url,
         applied_date=applied_date,
+        reminder_date=reminder_date,
     )
 
     db.add(new_application)
