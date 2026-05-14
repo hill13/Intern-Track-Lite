@@ -17,7 +17,7 @@ class Application(Base):
     notes: Mapped[Optional[str]] = mapped_column(nullable=True)
     job_url: Mapped[Optional[str]] = mapped_column(nullable=True)
     applied_date: Mapped[date] = mapped_column(default=date.today)  # Python-side default so each row gets insert date
-    reminder_date: Mapped[Optional[date]] = mapped_column(nullable=True)
+    reminder_date: Mapped[Optional[date]] = mapped_column(nullable=True, index=True)  # B-tree index — scheduler queries this daily
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())  # DB sets this automatically
 
     __table_args__ = (
