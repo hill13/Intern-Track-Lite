@@ -11,6 +11,7 @@ class ApplicationCreate(BaseModel):
     applied_date: Optional[date] = None   # defaults to today in the endpoint if not provided
     notes: Optional[str] = None
     job_url: Optional[str] = None
+    reminder_date: Optional[date] = None
 
 
 class ApplicationUpdate(BaseModel):
@@ -23,6 +24,7 @@ class ApplicationUpdate(BaseModel):
     notes: Optional[str] = None
     job_url: Optional[str] = None
     tag_ids: Optional[list[int]] = None  # if provided, replaces all tags on the application
+    reminder_date: Optional[date] = None
 
 
 class ApplicationResponse(BaseModel):
@@ -37,6 +39,7 @@ class ApplicationResponse(BaseModel):
     notes: Optional[str] = None
     job_url: Optional[str] = None
     tag_ids: list[int] = []  # always returned, empty list means no tags
+    reminder_date: Optional[date] = None
 
     # Required to serialize SQLAlchemy ORM objects — without this Pydantic
     # expects a dict, but ORM objects are class instances with attributes

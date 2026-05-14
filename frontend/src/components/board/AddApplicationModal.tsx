@@ -19,6 +19,7 @@ export default function AddApplicationModal({ isOpen, onClose, tags }: Props) {
   const [source, setSource] = useState('linkedin')
   const [notes, setNotes] = useState('')
   const [jobUrl, setJobUrl] = useState('')
+  const [reminderDate, setReminderDate] = useState('')  // empty = let backend default to applied_date + 7d
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -46,6 +47,7 @@ export default function AddApplicationModal({ isOpen, onClose, tags }: Props) {
         source,
         notes: notes || undefined,
         job_url: jobUrl || undefined,
+        reminder_date: reminderDate || undefined,  // undefined → backend applies applied_date + 7d default
       })
       // Attach tags via PATCH if any were selected
       if (selectedTagIds.length > 0) {
@@ -55,7 +57,8 @@ export default function AddApplicationModal({ isOpen, onClose, tags }: Props) {
       await queryClient.invalidateQueries({ queryKey: ['applications'] })
       // Reset form for next use
       setCompanyName(''); setRoleTitle(''); setStage('applied')
-      setSource('linkedin'); setNotes(''); setJobUrl(''); setSelectedTagIds([])
+      setSource('linkedin'); setNotes(''); setJobUrl(''); setReminderDate('')
+      setSelectedTagIds([])
       onClose()
     } catch {
       setError('Failed to create application')
@@ -110,6 +113,16 @@ export default function AddApplicationModal({ isOpen, onClose, tags }: Props) {
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
+          <label className="text-xs text-gray-500 flex flex-col gap-1">
+            Reminder date
+            <input
+              type="date"
+              className="border rounded px-3 py-2 text-sm"
+              value={reminderDate}
+              onChange={e => setReminderDate(e.target.value)}
+            />
+            <span className="text-[10px] text-gray-400">Defaults to applied date + 7 days if blank</span>
+          </label>
           <input
             className="border rounded px-3 py-2 text-sm"
             placeholder="Job URL (optional)"

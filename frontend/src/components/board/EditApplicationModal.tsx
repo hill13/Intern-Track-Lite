@@ -19,6 +19,7 @@ export default function EditApplicationModal({ app, onClose, tags }: Props) {
   const [source, setSource] = useState('linkedin')
   const [notes, setNotes] = useState('')
   const [jobUrl, setJobUrl] = useState('')
+  const [reminderDate, setReminderDate] = useState('')  // YYYY-MM-DD string; '' means no reminder
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -36,6 +37,7 @@ export default function EditApplicationModal({ app, onClose, tags }: Props) {
       setSource(app.source)
       setNotes(app.notes ?? '')
       setJobUrl(app.job_url ?? '')
+      setReminderDate(app.reminder_date ?? '')   // snake_case to match backend
       setSelectedTagIds(app.tag_ids)
     }
   }, [app])
@@ -61,6 +63,9 @@ export default function EditApplicationModal({ app, onClose, tags }: Props) {
         source,
         notes: notes || undefined,
         job_url: jobUrl || undefined,
+        // Empty string → send null so the backend clears the reminder.
+        // (undefined would omit the field entirely, leaving the existing DB value.)
+        reminder_date: reminderDate || null,
         tag_ids: selectedTagIds,
       })
       await queryClient.invalidateQueries({ queryKey: ['applications'] })
@@ -132,6 +137,16 @@ export default function EditApplicationModal({ app, onClose, tags }: Props) {
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
+          <label className="text-xs text-gray-500 flex flex-col gap-1">
+            Reminder date
+            <input
+              type="date"
+              className="border rounded px-3 py-2 text-sm"
+              value={reminderDate}
+              onChange={e => setReminderDate(e.target.value)}
+            />
+            <span className="text-[10px] text-gray-400">Clear the field to remove the reminder</span>
+          </label>
           <input
             className="border rounded px-3 py-2 text-sm"
             placeholder="Job URL (optional)"

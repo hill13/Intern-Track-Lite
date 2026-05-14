@@ -7,4 +7,9 @@ export default defineConfig({
     react(),
     tailwindcss(),  // Tailwind v4 runs as a Vite plugin — no tailwind.config.ts needed
   ],
+  server: {
+    // Docker on Windows: bind-mounted files don't emit native fs events into the container,
+    // so Vite never sees code changes. Polling every 300ms catches them.
+    watch: { usePolling: true, interval: 300 },
+  },
 })

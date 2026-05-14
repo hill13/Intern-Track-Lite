@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
+    # Resend (transactional email)
+    RESEND_API_KEY: str  # required — fail-fast if missing from .env
+    RESEND_FROM_EMAIL: str = "InternTrack <onboarding@resend.dev>"
+
     # Tells Pydantic where to find the .env file
     model_config = SettingsConfigDict(env_file=".env")
 
