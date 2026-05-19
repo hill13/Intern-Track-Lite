@@ -23,4 +23,5 @@ class Application(Base):
     __table_args__ = (
         Index("ix_applications_user_stage", "user_id", "stage"),    # fast filtered list by stage
         Index("ix_applications_user_source", "user_id", "source"),  # fast filtered list by source
+        Index("ix_applications_user_applied_date", "user_id", "applied_date"),  # fast time-window filter for /stats/velocity
     )
