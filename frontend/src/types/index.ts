@@ -51,6 +51,19 @@ export interface ApplicationUpdate {
   tag_ids?: number[]
 }
 
+// Stats types — mirror StageCount / VelocityPoint from the backend
+// Backend returns these SPARSE: only stages/weeks that actually have data.
+// Zero-fill happens client-side before charting.
+export interface StageCount {
+  stage: string
+  count: number
+}
+
+export interface VelocityPoint {
+  week_start: string   // ISO date string, the Monday of the bucket — e.g. "2026-05-11"
+  count: number
+}
+
 // Auth types
 export interface Token {
   access_token: string
