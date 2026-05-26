@@ -13,16 +13,7 @@ import { useApplications } from '../hooks/useApplications'
 import { useTags } from '../hooks/useTags'
 import { updateApplication } from '../api/applications'
 import type { Application } from '../types'
-
-const STAGES = [
-  'wishlist',
-  'applied',
-  'screening',
-  'interview',
-  'offer',
-  'rejected',
-  'withdrawn',
-]
+import { STAGES } from '../constants'
 
 export default function Board() {
   const { applications, isLoading, isError } = useApplications()

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { createApplication, updateApplication } from '../../api/applications'
 import type { Tag } from '../../types'
+import { STAGES } from '../../constants'
 
 interface Props {
   isOpen: boolean
@@ -9,7 +10,6 @@ interface Props {
   tags: Tag[]
 }
 
-const STAGES = ['wishlist', 'applied', 'screening', 'interview', 'offer', 'rejected', 'withdrawn']
 const SOURCES = ['linkedin', 'handshake', 'indeed', 'company_website', 'referral', 'other']
 
 export default function AddApplicationModal({ isOpen, onClose, tags }: Props) {

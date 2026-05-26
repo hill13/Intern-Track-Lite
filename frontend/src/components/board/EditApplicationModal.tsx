@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { updateApplication, deleteApplication } from '../../api/applications'
 import type { Application, Tag } from '../../types'
+import { STAGES } from '../../constants'
 
 interface Props {
   app: Application | null
@@ -9,7 +10,6 @@ interface Props {
   tags: Tag[]
 }
 
-const STAGES = ['wishlist', 'applied', 'screening', 'interview', 'offer', 'rejected', 'withdrawn']
 const SOURCES = ['linkedin', 'handshake', 'indeed', 'company_website', 'referral', 'other']
 
 export default function EditApplicationModal({ app, onClose, tags }: Props) {
