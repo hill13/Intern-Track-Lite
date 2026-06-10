@@ -10,17 +10,19 @@ import { getByStage, getVelocity } from '../api/stats'
 import type { StageCount, VelocityPoint } from '../types'
 
 export function useByStage() {
-  const { data, isLoading, isError } = useQuery<StageCount[]>({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery<StageCount[]>({
     queryKey: ['stats', 'by-stage'],
     queryFn: () => getByStage(),  // arrow wrapper keeps React Query's context object out of the call
   })
-  return { data, isLoading, isError }
+  // refetch: imperative re-run for the Retry button; returns a Promise
+  // isFetching: true on ANY in-flight fetch (incl. retries), not just the first one
+  return { data, isLoading, isError, refetch, isFetching }
 }
 
 export function useVelocity() {
-  const { data, isLoading, isError } = useQuery<VelocityPoint[]>({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery<VelocityPoint[]>({
     queryKey: ['stats', 'velocity'],
     queryFn: () => getVelocity(),
   })
-  return { data, isLoading, isError }
+  return { data, isLoading, isError, refetch, isFetching }
 }
