@@ -7,6 +7,7 @@
 import { useMemo } from 'react'
 import { useByStage, useVelocity } from '../hooks/useStats'
 import { zeroFillStages, zeroFillVelocity } from '../utils/stats'
+import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar } from "recharts";
 
 export default function Stats() {
   const {
@@ -48,7 +49,14 @@ export default function Stats() {
     }
     if (stageData!.length === 0) return <div>No applications yet.</div>
 
-    return <div>BarChart placeholder</div>
+    return <ResponsiveContainer width="100%" height={300}>
+    <BarChart data={denseStages}>
+      <XAxis dataKey="stage" />
+      <YAxis />
+      <Tooltip />
+      <Bar dataKey="count" fill="#3b82f6" />
+    </BarChart>
+  </ResponsiveContainer>
   }
 
   const renderVelocityChart = () => {
