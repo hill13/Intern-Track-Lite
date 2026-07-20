@@ -8,6 +8,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import Board from './pages/Board'
+import Stats from './pages/Stats'
+import { Link } from 'react-router-dom'
 
 export default function App() {
   return (
@@ -23,6 +25,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Board />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stats"
+          element={
+            <ProtectedRoute>
+              <Stats />
             </ProtectedRoute>
           }
         />

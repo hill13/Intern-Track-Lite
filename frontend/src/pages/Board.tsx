@@ -13,17 +13,8 @@ import { useApplications } from '../hooks/useApplications'
 import { useTags } from '../hooks/useTags'
 import { updateApplication } from '../api/applications'
 import type { Application } from '../types'
-
-const STAGES = [
-  'wishlist',
-  'applied',
-  'screening',
-  'interview',
-  'offer',
-  'rejected',
-  'withdrawn',
-]
-
+import { STAGES } from '../constants'
+import { Link } from 'react-router-dom'
 export default function Board() {
   const { applications, isLoading, isError } = useApplications()
   const { tags } = useTags()
@@ -84,6 +75,7 @@ export default function Board() {
         >
           + Add Application
         </button>
+        <Link to= "/stats">Stats</Link>
       </div>
 
       {/* Tag filter bar — click a tag to filter, click again to clear */}
