@@ -9,7 +9,6 @@ import Register from './pages/Register'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import Board from './pages/Board'
 import Stats from './pages/Stats'
-import { Link } from 'react-router-dom'
 
 export default function App() {
   return (
