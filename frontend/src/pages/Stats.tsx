@@ -7,7 +7,6 @@
 import { useMemo } from 'react'
 import { useByStage, useVelocity } from '../hooks/useStats'
 import { zeroFillStages, zeroFillVelocity } from '../utils/stats'
-import { Link } from 'react-router-dom'
 import {
   ResponsiveContainer,
   BarChart,
@@ -134,19 +133,13 @@ export default function Stats() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Top bar — title left, back link right, mirrors Board's top bar layout */}
+      {/* Page header — title + subtitle */}
       <div className="border-b border-gray-200 bg-white">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+        <div className="max-w-6xl mx-auto flex items-center px-6 py-4">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Stats</h1>
             <p className="text-sm text-gray-500 mt-0.5">Your application pipeline at a glance.</p>
           </div>
-          <Link
-            to="/board"
-            className="px-4 py-2 text-sm text-blue-600 hover:underline"
-          >
-            Back to Board
-          </Link>
         </div>
       </div>
 

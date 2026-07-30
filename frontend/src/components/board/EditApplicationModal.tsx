@@ -26,6 +26,9 @@ export default function EditApplicationModal({ app, onClose, tags }: Props) {
 
   const queryClient = useQueryClient()
 
+  const formatSource = (s: string) =>
+    s.replace(/_/g, ' ').replace(/^./, c => c.toUpperCase())
+
   // Sync form fields whenever a different card is clicked
   // useState only initializes once on mount, so useEffect is needed to re-fill
   // when app changes (e.g. user clicks a different card without closing the modal)
@@ -105,20 +108,29 @@ export default function EditApplicationModal({ app, onClose, tags }: Props) {
         <h2 className="text-lg font-semibold mb-4">Edit Application</h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+
+          <label className="text-xs text-gray-500 flex flex-col gap-1">
+            Company name
           <input
             className="border rounded px-3 py-2 text-sm"
-            placeholder="Company name"
             value={companyName}
             onChange={e => setCompanyName(e.target.value)}
             required
           />
+          </label>
+
+          <label className="text-xs text-gray-500 flex flex-col gap-1">
+            Role title
           <input
             className="border rounded px-3 py-2 text-sm"
-            placeholder="Role title"
             value={roleTitle}
             onChange={e => setRoleTitle(e.target.value)}
             required
           />
+          </label>
+
+          <label className="text-xs text-gray-500 flex flex-col gap-1">
+            Stage
           <select
             className="border rounded px-3 py-2 text-sm"
             value={stage}
@@ -128,15 +140,21 @@ export default function EditApplicationModal({ app, onClose, tags }: Props) {
               <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
             ))}
           </select>
+          </label>
+
+          <label className="text-xs text-gray-500 flex flex-col gap-1">
+            Source
           <select
             className="border rounded px-3 py-2 text-sm"
             value={source}
             onChange={e => setSource(e.target.value)}
           >
             {SOURCES.map(s => (
-              <option key={s} value={s}>{s}</option>
+              <option key={s} value={s}>{formatSource(s)}</option>
             ))}
           </select>
+          </label>
+
           <label className="text-xs text-gray-500 flex flex-col gap-1">
             Reminder date
             <input
@@ -147,19 +165,25 @@ export default function EditApplicationModal({ app, onClose, tags }: Props) {
             />
             <span className="text-[10px] text-gray-400">Clear the field to remove the reminder</span>
           </label>
+
+          <label className="text-xs text-gray-500 flex flex-col gap-1">
+            Job URL (Optional)
           <input
             className="border rounded px-3 py-2 text-sm"
-            placeholder="Job URL (optional)"
             value={jobUrl}
             onChange={e => setJobUrl(e.target.value)}
           />
+          </label>
+
+          <label className="text-xs text-gray-500 flex flex-col gap-1">
+            Notes (Optional)
           <textarea
             className="border rounded px-3 py-2 text-sm"
-            placeholder="Notes (optional)"
             value={notes}
             onChange={e => setNotes(e.target.value)}
             rows={3}
           />
+          </label>
 
           {/* Tag selector */}
           {tags.length > 0 && (
