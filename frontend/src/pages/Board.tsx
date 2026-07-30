@@ -14,7 +14,7 @@ import { useTags } from '../hooks/useTags'
 import { updateApplication } from '../api/applications'
 import type { Application } from '../types'
 import { STAGES } from '../constants'
-import { Link } from 'react-router-dom'
+
 export default function Board() {
   const { applications, isLoading, isError } = useApplications()
   const { tags } = useTags()
@@ -67,15 +67,14 @@ export default function Board() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Top bar — add button */}
-      <div className="flex items-center justify-between px-4 pt-4">
+      {/* Page header — add button */}
+      <div className="flex items-center px-4 pt-4">
         <button
           onClick={() => setIsModalOpen(true)}
           className="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           + Add Application
         </button>
-        <Link to= "/stats">Stats</Link>
       </div>
 
       {/* Tag filter bar — click a tag to filter, click again to clear */}
