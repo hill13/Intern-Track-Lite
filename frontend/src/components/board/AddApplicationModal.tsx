@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { createApplication, updateApplication } from '../../api/applications'
 import type { Tag } from '../../types'
 import { STAGES } from '../../constants'
+import TagSection from './TagSection'
 
 interface Props {
   isOpen: boolean
@@ -161,23 +162,8 @@ export default function AddApplicationModal({ isOpen, onClose, tags }: Props) {
           </label>
 
           {/* Tag selector */}
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {tags.map(tag => (
-                <button
-                  key={tag.id}
-                  type="button"
-                  onClick={() => toggleTag(tag.id)}
-                  style={{ backgroundColor: tag.color }}
-                  className={`text-xs text-white px-2 py-0.5 rounded-full transition-opacity ${
-                    selectedTagIds.includes(tag.id) ? 'opacity-100' : 'opacity-40'
-                  }`}
-                >
-                  {tag.name}
-                </button>
-              ))}
-            </div>
-          )}
+          
+          <TagSection selectedTagIds={selectedTagIds} tags={tags} onToggle={toggleTag} />
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
