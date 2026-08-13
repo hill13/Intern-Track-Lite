@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -7,9 +8,16 @@ from app.api.v1.router import api_router
 from app.core.scheduler import start_scheduler, stop_scheduler
 
 
+
 # Lifespan: code before `yield` runs on startup, code after runs on shutdown.
 # @asynccontextmanager turns this async generator into an async context manager
 # so FastAPI can do `async with lifespan(app):` under the hood.
+
+CORS_ORIGINS = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:5173",
+).split(",")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Graceful degradation: if the scheduler can't start, log it but keep the API alive.
@@ -31,7 +39,7 @@ app = FastAPI(title="InternTrack Lite API", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite dev server
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

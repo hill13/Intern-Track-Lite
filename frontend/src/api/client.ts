@@ -1,18 +1,24 @@
 import axios from 'axios'
 
-// All API calls go through this instance — base URL points to FastAPI backend
+// Pick the backend URL.
+// In production, use VITE_API_URL.
+// In local development, fall back to localhost.
+const baseURL =
+  import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+
+// Create one reusable Axios client with that base URL.
 const client = axios.create({
-  baseURL: 'http://localhost:8000/api/v1',
+  baseURL,
 })
 
-// Request interceptor — runs before every API call
-// Reads the token from localStorage and attaches it to the Authorization header
-// This way we never have to manually add the token in individual API calls
+// Before every request, attach the JWT token if it exists.
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token')
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+
   return config
 })
 
