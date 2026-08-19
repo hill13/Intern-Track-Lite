@@ -1,5 +1,7 @@
 # InternTrack Lite
 
+🔗 **Live demo:** [intern-track-lite.vercel.app](https://intern-track-lite.vercel.app) — register with any email to try it (Render free tier: ~30 s cold start on first request after idle).
+
 A full-stack job-application tracker built as a portfolio project — async FastAPI backend, React + TanStack Query frontend, PostgreSQL with composite-indexed aggregation queries, optimistic-update Kanban board, scheduled reminder digests via Resend, and a recharts-based stats dashboard.
 
 > Built to practice production-grade patterns end-to-end, not to be a tutorial app. The [Key Decisions](#key-decisions) section below writes up the architectural choices worth defending — each with the rejected alternatives and the tradeoff accepted.
@@ -42,6 +44,18 @@ A full-stack job-application tracker built as a portfolio project — async Fast
 
 ---
 
+## Deployment
+
+Live at [intern-track-lite.vercel.app](https://intern-track-lite.vercel.app). Free-tier stack chosen for zero cost, one-click GitHub integration, and portability across providers.
+
+- **Frontend — Vercel.** Static Vite bundle served from Vercel's edge CDN. Auto-deploys on every push to `main`. `VITE_API_URL` is baked into the bundle at build time (Vite's design — the shipped JS has no runtime server, so env vars must be substituted before the browser downloads it).
+- **Backend — Render.** FastAPI + uvicorn inside a Docker container, auto-deploys on every push to `main`. Free tier spins down after ~15 min idle; first request after inactivity has a ~30 s cold start, then stays warm.
+- **Database — Neon.** Managed serverless Postgres. Compute auto-suspends after ~5 min idle but resumes automatically on the next connection — no data loss and no manual wake-up. Picked over Supabase because Supabase's free tier deletes projects after ~7 days of inactivity (learned the hard way — the original DB got deleted mid-project).
+- **Migrations — Alembic inside the container start command.** `alembic upgrade head` runs before uvicorn in the backend's `CMD`, so the API is never allowed to serve traffic against an outdated schema. See Key Decision #7 for the tradeoff.
+- **Config — env vars per service.** Each PaaS holds its own env vars in its own dashboard (Vercel for `VITE_API_URL`; Render for `DATABASE_URL`, `SECRET_KEY`, `CORS_ORIGINS`, `RESEND_API_KEY`; Neon holds the connection string). No secrets in git; `.env.example` documents the shape.
+
+---
+
 ## Key Decisions
 
 Six architectural choices worth defending. Each entry names what was chosen, what was rejected, the tradeoff accepted, and what would change the answer.
@@ -70,6 +84,10 @@ Backend `/stats/*` endpoints return only stages/weeks that have applications. Th
 
 The tag CRUD API shipped in Phase 5 but had no user path — the endpoint was reachable via curl and invisible in the app (a **dead feature**). Chose to put create/delete inline inside both application modals rather than build a dedicated `/tags` route, because the audience is one user managing ~5-15 tags — a whole page is over-scope. Colors come from a curated 8-value `TAG_COLORS` palette, enforced at the type level via `as const` + a derived union (`type TagColor = (typeof TAG_COLORS)[number]`) — palette membership is a compile-time constraint, not a convention. **Rejected:** dedicated `/tags` route (over-scope), freeform color picker (visual chaos, no accessibility contract). **Tradeoff:** no rename affordance — users delete + recreate today. Duplicate check is frontend-only (no `UniqueConstraint(user_id, name)` on the backend yet), so a two-tab race could still create dupes. **Would revisit if:** tag count regularly exceeds ~15 (inline strip breaks visually) or two-tab races start showing up.
 
+### 7. Alembic-on-startup instead of a separate migration job (deployment)
+
+The backend container's `CMD` runs `alembic upgrade head && uvicorn ...`, so every deploy migrates the DB before the API comes up. Chosen because this is a **one-replica** Render service with no CI/CD pipeline to hang a pre-deploy step off — keeping migrations in the container's start command means the API is never allowed to serve traffic against an outdated schema. **Rejected:** Render's Pre-Deploy Command hook (extra orchestration surface for zero benefit at this scale), running `alembic upgrade head` manually before each deploy (relies on me not forgetting). **Tradeoff accepted:** migrations block startup — a slow migration would blow Render's health-check window and mark the deploy failed. Also **not safe with multiple replicas** — two containers starting simultaneously would race on the same migration since Alembic has no distributed locking, and would collide with `duplicate object` errors on the second one. **Would revisit if:** scaling past one replica, migrations start regularly exceeding a few seconds, or a CI pipeline lands with a natural place to run `alembic upgrade head` once against the target DB before rolling out replicas.
+
 ---
 
 ## Architecture Highlights
@@ -96,74 +114,21 @@ The tag CRUD API shipped in Phase 5 but had no user path — the endpoint was re
 ```bash
 git clone https://github.com/hill13/Intern-Track-Lite.git
 cd Intern-Track-Lite
-cp .env.example .env
-# Fill in RESEND_API_KEY etc. — see Environment Variables below
+cp backend/.env.example backend/.env    # then fill in RESEND_API_KEY + generate SECRET_KEY
 docker compose up
 ```
 
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000
-- API docs (Swagger): http://localhost:8000/docs
+- Frontend: http://localhost:5173 · Backend: http://localhost:8000 · Swagger: http://localhost:8000/docs
 
-Register a user via the `/register` page in the browser, then log in — no seeded users.
+Register a user in the browser, then log in — no seeded users. See [`backend/.env.example`](./backend/.env.example) for required env vars and how to generate `SECRET_KEY`.
 
-### After changing `package.json`
-
-The frontend container uses an anonymous volume for `node_modules` (deliberate — Linux container shouldn't share the host's OS-specific compiled binaries). After installing a new dep on the host, either install inside the container:
-
-```bash
-docker compose exec frontend npm install <package>
-```
-
-Or rebuild the image:
-
-```bash
-docker compose down
-docker compose up --build
-```
-
----
-
-## Environment Variables
-
-Copy `.env.example` to `.env`:
-
-```bash
-# Database (docker-compose values)
-POSTGRES_USER=intern
-POSTGRES_PASSWORD=intern
-POSTGRES_DB=interntrack
-
-# JWT
-JWT_SECRET_KEY=generate-a-64-char-random-string
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-
-# Resend (transactional email)
-RESEND_API_KEY=re_your_key_here
-RESEND_FROM_EMAIL=onboarding@resend.dev   # sandbox address; swap for a verified domain in production
-```
-
----
-
-## Project Status
-
-Built in phases:
-
-- [x] Phase 1 — Foundation (Docker, FastAPI skeleton, React skeleton, CI)
-- [x] Phase 2 — Auth (register, login, JWT, protected routes)
-- [x] Phase 3 — Applications CRUD
-- [x] Phase 4 — Kanban board + drag & drop + optimistic updates
-- [x] Phase 5 — Tags (model, API, tag chips on cards)
-- [x] Phase 6 — Tag filter bar on Kanban board
-- [x] Phase 6.5 — Application form UI (Add / Edit modals)
-- [x] Phase 7 — Reminders + Resend digest email notifications
-- [x] Phase 8 — Stats dashboard (recharts, KPI tiles, `/stats/by-stage`, `/stats/velocity`)
+If you install a new npm dep on the host, either run `docker compose exec frontend npm install <package>` inside the container or rebuild with `docker compose up --build` (the container uses an anonymous volume for `node_modules` so host and container don't share OS-specific binaries).
 
 ---
 
 ## How I Built This With AI
 
-Used Claude Code heavily throughout, with explicit guardrails in [`CLAUDE.md`](./CLAUDE.md):
+Used Claude Code heavily throughout, with explicit mentor-mode guardrails:
 - No full implementations without me attempting first
 - Every non-obvious line explained so I can defend it in an interview
 - AI pushed back when I took the easy path (e.g. "you should extract this to a shared component" or "would you write this without AI?")
@@ -180,13 +145,12 @@ Three representative moments I caught the model being wrong:
 
 Ordered by realistic priority, not aspiration:
 
-1. **Extract `SOURCES` array** — still duplicated in both application modals. Same smell `STAGES` had before it was pulled into `constants.ts`.
+1. **Cross-site bookmarklet + install page** — drag-to-bookmark-bar JavaScript that scrapes the current LinkedIn / Indeed / Handshake / Glassdoor job page and opens InternTrack with the Add modal pre-filled (company, role, URL, source). Site-specific selectors with `document.title` fallback, plain `URLSearchParams` handoff into the existing Add modal. One-click job capture instead of alt-tab-and-retype.
 2. **Generate frontend TS types from `/openapi.json`** — would prevent the class of drift bug where a backend field rename compiles cleanly on the frontend but silently breaks a `dataKey` string.
 3. **Retry + DLQ for Resend send failures** — current fault isolation logs and continues; real recovery needs retry-with-exponential-backoff and a dead-letter queue for persistent failures.
-4. **Shared `<Layout>` component** — both protected pages already render a shared `<Nav />` at the top of their JSX, but the wrapping page chrome is still duplicated. If a third page ships, upgrade to a full `<Layout>` + React Router `<Outlet />` pattern so shared chrome lives in one place.
-5. **Shared `<ChartCard>` component** — per-chart loading / error / empty / success JSX is near-duplicated between the two charts. Extract when a third chart lands.
-6. **Response-rate metric on the stats dashboard** — requires an outcome-per-source aggregation the backend doesn't compute yet.
-7. **Horizontal scaling story** — swap in-process APScheduler for Celery + Redis if I ever needed more than one API replica.
+4. **Extract shared page chrome + chart chrome** — both protected pages already render a shared `<Nav />` at the top of their JSX, but wrapping page chrome is still duplicated. Same story for the two charts' loading/error/empty/success JSX. Upgrade to `<Layout>` + `<Outlet />` and a `<ChartCard>` component once a third page or chart lands.
+5. **Response-rate metric on the stats dashboard** — requires an outcome-per-source aggregation the backend doesn't compute yet.
+6. **Horizontal scaling story** — swap in-process APScheduler for Celery + Redis if I ever needed more than one API replica, and move Alembic migrations out of the container start command (see Key Decision #7).
 
 ---
 
