@@ -32,11 +32,11 @@ export default function Nav() {
   }
 
   return (
-    <nav className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
+    <nav className="flex items-center justify-between border-b border-stone-200 bg-surface px-6 py-3">
       {/* Left — app title, also links home */}
       <Link
         to="/board"
-        className="text-lg font-semibold text-gray-900 hover:text-gray-700"
+        className="text-lg font-semibold tracking-tight text-stone-900 hover:text-accent transition-colors"
       >
         InternTrack
       </Link>
@@ -47,8 +47,8 @@ export default function Nav() {
           to="/board"
           className={({ isActive }) =>
             isActive
-              ? 'text-blue-600 font-medium border-b-2 border-blue-600 pb-1'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'text-accent font-medium border-b-2 border-accent pb-1'
+              : 'text-stone-600 hover:text-stone-900 transition-colors'
           }
         >
           Board
@@ -57,8 +57,8 @@ export default function Nav() {
           to="/stats"
           className={({ isActive }) =>
             isActive
-              ? 'text-blue-600 font-medium border-b-2 border-blue-600 pb-1'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'text-accent font-medium border-b-2 border-accent pb-1'
+              : 'text-stone-600 hover:text-stone-900 transition-colors'
           }
         >
           Stats
@@ -67,10 +67,10 @@ export default function Nav() {
 
       {/* Right — email (only if decode succeeded) + logout button */}
       <div className="flex items-center gap-3">
-        {email && <span className="text-sm text-gray-600">{email}</span>}
+        {email && <span className="text-sm text-stone-500">{email}</span>}
         <button
           onClick={handleLogout}
-          className="px-3 py-1 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
+          className="px-3 py-1.5 text-sm rounded-md border border-stone-200 text-stone-700 hover:bg-sunken hover:border-stone-300 transition-colors"
         >
           Logout
         </button>
