@@ -22,20 +22,22 @@ export default function ApplicationCard({ application, tags, onEdit }: Props) {
       {...attributes}
       style={style}
       onClick={() => onEdit(application)}
-      className="bg-white border rounded p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      className="bg-surface border border-stone-200 rounded-lg p-3 shadow-sm hover:shadow-md hover:border-stone-300 transition-all cursor-pointer"
     >
       {/* Drag handle — listeners here so drag only starts from the grip, not the whole card.
           stopPropagation prevents the grip click from also firing onEdit. */}
       <div
         {...listeners}
         onClick={e => e.stopPropagation()}
-        className="text-gray-300 hover:text-gray-500 cursor-grab mb-1 w-fit"
+        className="text-stone-300 hover:text-stone-500 cursor-grab mb-1 w-fit transition-colors"
       >
         ⠿
       </div>
-      <p className="font-semibold text-sm">{application.company_name}</p>
-      <p className="text-sm text-gray-500">{application.role_title}</p>
-      <p className="text-xs text-blue-500 mt-1">{application.source}</p>
+      <p className="font-semibold text-sm text-stone-900 leading-tight">{application.company_name}</p>
+      <p className="text-sm text-stone-500 mt-0.5">{application.role_title}</p>
+      <span className="inline-block text-[10px] font-medium uppercase tracking-wide text-accent-on-soft bg-accent-soft px-2 py-0.5 rounded-full mt-2">
+        {application.source.replace(/_/g, ' ')}
+      </span>
       <div className="flex flex-wrap gap-1 mt-2">
         {tags
           .filter(tag => application.tag_ids.includes(tag.id))
@@ -43,7 +45,7 @@ export default function ApplicationCard({ application, tags, onEdit }: Props) {
             <span
               key={tag.id}
               style={{ backgroundColor: tag.color }}
-              className="text-xs text-white px-2 py-0.5 rounded-full"
+              className="text-xs font-medium text-white px-2 py-0.5 rounded-full"
             >
               {tag.name}
             </span>

@@ -32,3 +32,25 @@ export const TAG_COLORS = [
 // If you try to assign any other string, TypeScript will refuse — the palette
 // is enforced at compile time, not just by convention.
 export type TagColor = (typeof TAG_COLORS)[number]
+
+export type Stage = (typeof STAGES)[number]
+
+// Semantic color meta per stage. Each stage reads as a soft chip:
+// pale bg + saturated label text + subtle border + a solid dot for the column
+// header. Hues chosen so Wishlist→Applied→Screening→Interview→Offer carries a
+// warming "progression" feel, while Rejected/Withdrawn fall out quietly.
+// Hardcoded Tailwind classes so the compiler can see every string statically.
+export const STAGE_META: Record<Stage, {
+  bg: string
+  text: string
+  border: string
+  dot: string
+}> = {
+  wishlist:  { bg: 'bg-slate-50',   text: 'text-slate-700',   border: 'border-slate-200',   dot: 'bg-slate-400' },
+  applied:   { bg: 'bg-teal-50',    text: 'text-teal-800',    border: 'border-teal-200',    dot: 'bg-teal-500' },
+  screening: { bg: 'bg-amber-50',   text: 'text-amber-800',   border: 'border-amber-200',   dot: 'bg-amber-500' },
+  interview: { bg: 'bg-violet-50',  text: 'text-violet-800',  border: 'border-violet-200',  dot: 'bg-violet-500' },
+  offer:     { bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200', dot: 'bg-emerald-500' },
+  rejected:  { bg: 'bg-rose-50',    text: 'text-rose-700',    border: 'border-rose-200',    dot: 'bg-rose-400' },
+  withdrawn: { bg: 'bg-stone-100',  text: 'text-stone-600',   border: 'border-stone-200',   dot: 'bg-stone-400' },
+}

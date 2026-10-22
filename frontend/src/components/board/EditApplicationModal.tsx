@@ -95,109 +95,117 @@ export default function EditApplicationModal({ app, onClose, tags }: Props) {
     }
   }
 
+  // Reused across every form field — stone border + teal focus ring.
+  const inputCls = "border border-stone-300 rounded-md px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-colors"
+  const labelCls = "text-xs font-medium text-stone-600 flex flex-col gap-1"
+
   return (
     // Overlay — clicking outside the modal closes it
     <div
-      className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       {/* Modal box — stop click from bubbling to overlay */}
       <div
-        className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
+        className="bg-surface border border-stone-200 rounded-xl shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold mb-4">Edit Application</h2>
+        <h2 className="text-lg font-semibold tracking-tight text-stone-900 mb-4">Edit Application</h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
 
-          <label className="text-xs text-gray-500 flex flex-col gap-1">
+          <label className={labelCls}>
             Company name
-          <input
-            className="border rounded px-3 py-2 text-sm"
-            value={companyName}
-            onChange={e => setCompanyName(e.target.value)}
-            required
-          />
+            <input
+              className={inputCls}
+              value={companyName}
+              onChange={e => setCompanyName(e.target.value)}
+              required
+            />
           </label>
 
-          <label className="text-xs text-gray-500 flex flex-col gap-1">
+          <label className={labelCls}>
             Role title
-          <input
-            className="border rounded px-3 py-2 text-sm"
-            value={roleTitle}
-            onChange={e => setRoleTitle(e.target.value)}
-            required
-          />
+            <input
+              className={inputCls}
+              value={roleTitle}
+              onChange={e => setRoleTitle(e.target.value)}
+              required
+            />
           </label>
 
-          <label className="text-xs text-gray-500 flex flex-col gap-1">
+          <label className={labelCls}>
             Stage
-          <select
-            className="border rounded px-3 py-2 text-sm"
-            value={stage}
-            onChange={e => setStage(e.target.value)}
-          >
-            {STAGES.map(s => (
-              <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-            ))}
-          </select>
+            <select
+              className={inputCls}
+              value={stage}
+              onChange={e => setStage(e.target.value)}
+            >
+              {STAGES.map(s => (
+                <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+              ))}
+            </select>
           </label>
 
-          <label className="text-xs text-gray-500 flex flex-col gap-1">
+          <label className={labelCls}>
             Source
-          <select
-            className="border rounded px-3 py-2 text-sm"
-            value={source}
-            onChange={e => setSource(e.target.value)}
-          >
-            {SOURCES.map(s => (
-              <option key={s} value={s}>{formatSource(s)}</option>
-            ))}
-          </select>
+            <select
+              className={inputCls}
+              value={source}
+              onChange={e => setSource(e.target.value)}
+            >
+              {SOURCES.map(s => (
+                <option key={s} value={s}>{formatSource(s)}</option>
+              ))}
+            </select>
           </label>
 
-          <label className="text-xs text-gray-500 flex flex-col gap-1">
+          <label className={labelCls}>
             Reminder date
             <input
               type="date"
-              className="border rounded px-3 py-2 text-sm"
+              className={inputCls}
               value={reminderDate}
               onChange={e => setReminderDate(e.target.value)}
             />
-            <span className="text-[10px] text-gray-400">Clear the field to remove the reminder</span>
+            <span className="text-[10px] text-stone-400">Clear the field to remove the reminder</span>
           </label>
 
-          <label className="text-xs text-gray-500 flex flex-col gap-1">
+          <label className={labelCls}>
             Job URL (Optional)
-          <input
-            className="border rounded px-3 py-2 text-sm"
-            value={jobUrl}
-            onChange={e => setJobUrl(e.target.value)}
-          />
+            <input
+              className={inputCls}
+              value={jobUrl}
+              onChange={e => setJobUrl(e.target.value)}
+            />
           </label>
 
-          <label className="text-xs text-gray-500 flex flex-col gap-1">
+          <label className={labelCls}>
             Notes (Optional)
-          <textarea
-            className="border rounded px-3 py-2 text-sm"
-            value={notes}
-            onChange={e => setNotes(e.target.value)}
-            rows={3}
-          />
+            <textarea
+              className={inputCls}
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              rows={3}
+            />
           </label>
 
           {/* Tag selector */}
           <TagSection selectedTagIds={selectedTagIds} tags={tags} onToggle={toggleTag} />
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && (
+            <div className="bg-danger-soft border border-danger-border text-danger text-sm px-3 py-2 rounded-md">
+              {error}
+            </div>
+          )}
 
-          <div className="flex justify-between mt-2">
+          <div className="flex justify-between mt-3">
             {/* Delete on the left — destructive action separated from save/cancel */}
             <button
               type="button"
               onClick={handleDelete}
               disabled={loading}
-              className="px-4 py-2 text-sm rounded border border-red-300 text-red-500 hover:bg-red-50 disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium rounded-md border border-danger-border text-danger hover:bg-danger-soft disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Delete
             </button>
@@ -205,16 +213,16 @@ export default function EditApplicationModal({ app, onClose, tags }: Props) {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm rounded border hover:bg-gray-50"
+                className="px-4 py-2 text-sm font-medium rounded-md border border-stone-300 text-stone-700 hover:bg-sunken transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 text-sm rounded bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium rounded-md bg-accent text-white hover:bg-accent-strong disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {loading ? 'Saving...' : 'Save'}
+                {loading ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>

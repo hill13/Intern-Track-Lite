@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+/*
+ * InternTrack design tokens (Tailwind v4 @theme).
+ * Semantic names live here; every component references these instead of
+ * raw hex. Warm neutrals (stone-based) + teal accent — picked once, applied
+ * everywhere, swap in one file to re-theme.
+ */
+@theme {
+  /* Surfaces */
+  --color-canvas:          #FAFAF7;   /* page background — warm off-white (not pure gray-50) */
+  --color-surface:         #FFFFFF;   /* cards, nav, modals */
+  --color-sunken:          #F5F3EE;   /* inset areas, subtle depressions */
+  --color-hover-soft:      #F0EEE8;   /* hover state on neutral surfaces */
+
+  /* Teal accent — primary action, active nav, chart primary */
+  --color-accent:          #0D9488;   /* teal-600 */
+  --color-accent-strong:   #0F766E;   /* teal-700 — hover */
+  --color-accent-soft:     #F0FDFA;   /* teal-50 — soft bg for pills, badges */
+  --color-accent-on-soft:  #115E59;   /* teal-800 — text on soft bg */
+
+  /* Danger (errors, delete buttons) */
+  --color-danger:          #DC2626;   /* red-600 */
+  --color-danger-soft:     #FEF2F2;   /* red-50 */
+  --color-danger-border:   #FECACA;   /* red-200 */
+}
+
+/*
+ * Baseline defaults so every page inherits canvas + warm text without needing
+ * explicit classes on each root element.
+ */
+body {
+  background-color: var(--color-canvas);
+  color: #1C1917;           /* stone-900 */
+  font-feature-settings: 'cv11', 'ss01';
+}
